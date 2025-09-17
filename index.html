@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squares & Cubes Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .quiz-container {
+            display: none;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        .progress {
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .question {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+        
+        .option:hover {
+            background-color: #e9ecef;
+            border-color: #6c757d;
+        }
+        
+        .option.selected {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .score-card {
+            display: none;
+            padding: 20px;
+        }
+        
+        .score {
+            font-size: 72px;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .review-container {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .review-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .correct {
+            color: #28a745;
+        }
+        
+        .incorrect {
+            color: #dc3545;
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="intro">
+            <h1>Squares & Cubes Quiz</h1>
+            <div class="instructions">
+                <p>Test your knowledge of squares (2-50) and cubes (2-30) with this timed quiz!</p>
+                <ul>
+                    <li>50 multiple-choice questions</li>
+                    <li>3 seconds per question (total 2 minutes 30 seconds)</li>
+                    <li>Two types of questions: 
+                        <ul>
+                            <li>What is the square/cube of a number?</li>
+                            <li>Which number does this square/cube belong to?</li>
+                        </ul>
+                    </li>
+                    <li>Select an answer before time runs out!</li>
+                </ul>
+            </div>
+            <button class="btn" id="start-btn">Start Quiz</button>
+        </div>
+        
+        <div class="quiz-container" id="quiz">
+            <div class="timer" id="timer">3s</div>
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+        </div>
+        
+        <div class="score-card" id="score-card">
+            <h2>Quiz Completed!</h2>
+            <div class="score" id="score">0</div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="correct-answers">0</div>
+                    <div class="stat-label">Correct Answers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="incorrect-answers">0</div>
+                    <div class="stat-label">Incorrect Answers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="percentage">0%</div>
+                    <div class="stat-label">Percentage</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="time-taken">0s</div>
+                    <div class="stat-label">Time Taken</div>
+                </div>
+            </div>
+            <div class="review-container" id="review-container"></div>
+            <button class="btn" id="restart-btn">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('start-btn');
+            const quizContainer = document.getElementById('quiz');
+            const intro = document.getElementById('intro');
+            const questionEl = document.getElementById('question');
+            const optionsEl = document.getElementById('options');
+            const timerEl = document.getElementById('timer');
+            const progressBar = document.getElementById('progress-bar');
+            const scoreCard = document.getElementById('score-card');
+            const scoreEl = document.getElementById('score');
+            const correctAnswersEl = document.getElementById('correct-answers');
+            const incorrectAnswersEl = document.getElementById('incorrect-answers');
+            const percentageEl = document.getElementById('percentage');
+            const timeTakenEl = document.getElementById('time-taken');
+            const reviewContainer = document.getElementById('review-container');
+            const restartBtn = document.getElementById('restart-btn');
+            
+            let questions = [];
+            let currentQuestion = 0;
+            let score = 0;
+            let timer;
+            let timeLeft = 3;
+            let startTime;
+            let selectedOptions = [];
+            let results = [];
+            
+            // Generate questions for the quiz
+            function generateQuestions() {
+                const sqQuestions = [];
+                const cbQuestions = [];
+                
+                // Generate square questions (what is square of x?)
+                for (let i = 2; i <= 50; i++) {
+                    sqQuestions.push({
+                        type: 'square_direct',
+                        question: `What is the square of ${i}?`,
+                        answer: i * i,
+                        options: generateOptions(i * i, 'square')
+                    });
+                }
+                
+                // Generate cube questions (what is cube of x?)
+                for (let i = 2; i <= 30; i++) {
+                    cbQuestions.push({
+                        type: 'cube_direct',
+                        question: `What is the cube of ${i}?`,
+                        answer: i * i * i,
+                        options: generateOptions(i * i * i, 'cube')
+                    });
+                }
+                
+                // Generate square root questions (which number's square is x?)
+                for (let i = 2; i <= 50; i++) {
+                    const square = i * i;
+                    sqQuestions.push({
+                        type: 'square_root',
+                        question: `Which number's square is ${square}?`,
+                        answer: i,
+                        options: generateOptions(i, 'number')
+                    });
+                }
+                
+                // Generate cube root questions (which number's cube is x?)
+                for (let i = 2; i <= 30; i++) {
+                    const cube = i * i * i;
+                    cbQuestions.push({
+                        type: 'cube_root',
+                        question: `Which number's cube is ${cube}?`,
+                        answer: i,
+                        options: generateOptions(i, 'number')
+                    });
+                }
+                
+                // Combine and shuffle questions
+                const allQuestions = [...sqQuestions, ...cbQuestions];
+                return allQuestions.sort(() => Math.random() - 0.5).slice(0, 50);
+            }
+            
+            // Generate options for questions
+            function generateOptions(correct, type) {
+                const options = [correct];
+                
+                // Generate wrong options based on the type of question
+                while (options.length < 4) {
+                    let wrongOption;
+                    
+                    if (type === 'square') {
+                        // For square questions, generate options close to the correct answer
+                        const variance = Math.floor(Math.random() * 41) - 20; // -20 to +20
+                        wrongOption = correct + variance;
+                    } else if (type === 'cube') {
+                        // For cube questions, generate options with more variance
+                        const variance = Math.floor(Math.random() * 101) - 50; // -50 to +50
+                        wrongOption = correct + variance;
+                    } else {
+                        // For number questions, generate numbers close to the correct number
+                        const variance = Math.floor(Math.random() * 5) + 1; // 1 to 5
+                        wrongOption = correct + (Math.random() > 0.5 ? variance : -variance);
+                    }
+                    
+                    // Ensure wrong options are positive and not duplicates
+                    if (wrongOption > 0 && !options.includes(wrongOption)) {
+                        options.push(wrongOption);
+                    }
+                }
+                
+                return options.sort(() => Math.random() - 0.5);
+            }
+            
+            // Start the quiz
+            function startQuiz() {
+                questions = generateQuestions();
+                currentQuestion = 0;
+                score = 0;
+                selectedOptions = new Array(questions.length).fill(null);
+                results = [];
+                startTime = Date.now();
+                
+                intro.style.display = 'none';
+                quizContainer.style.display = 'block';
+                scoreCard.style.display = 'none';
+                
+                showQuestion();
+            }
+            
+            // Display current question
+            function showQuestion() {
+                resetTimer();
+                
+                const question = questions[currentQuestion];
+                questionEl.textContent = question.question;
+                
+                optionsEl.innerHTML = '';
+                question.options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.classList.add('option');
+                    optionElement.textContent = option;
+                    optionElement.dataset.index = index;
+                    
+                    // Mark previously selected option if any
+                    if (selectedOptions[currentQuestion] === index) {
+                        optionElement.classList.add('selected');
+                    }
+                    
+                    optionElement.addEventListener('click', selectOption);
+                    optionsEl.appendChild(optionElement);
+                });
+                
+                updateProgressBar();
+            }
+            
+            // Select an option
+            function selectOption(e) {
+                const selectedIndex = parseInt(e.target.dataset.index);
+                
+                // Remove selected class from all options
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                e.target.classList.add('selected');
+                
+                // Store the selected option
+                selectedOptions[currentQuestion] = selectedIndex;
+                
+                // Automatically move to next question after selection
+                clearInterval(timer);
+                setTimeout(nextQuestion, 500);
+            }
+            
+            // Move to next question
+            function nextQuestion() {
+                // Check if the selected answer is correct
+                const selectedOptionIndex = selectedOptions[currentQuestion];
+                if (selectedOptionIndex !== null) {
+                    const selectedValue = questions[currentQuestion].options[selectedOptionIndex];
+                    const isCorrect = selectedValue === questions[currentQuestion].answer;
+                    
+                    // Store result for review
+                    results.push({
+                        question: questions[currentQuestion].question,
+                        correctAnswer: questions[currentQuestion].answer,
+                        userAnswer: selectedValue,
+                        isCorrect: isCorrect
+                    });
+                    
+                    if (isCorrect) {
+                        score++;
+                    }
+                } else {
+                    // No answer selected - mark as incorrect
+                    results.push({
+                        question: questions[currentQuestion].question,
+                        correctAnswer: questions[currentQuestion].answer,
+                        userAnswer: 'No answer',
+                        isCorrect: false
+                    });
+                }
+                
+                currentQuestion++;
+                
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                } else {
+                    endQuiz();
+                }
+            }
+            
+            // Set up and start the timer
+            function resetTimer() {
+                clearInterval(timer);
+                timeLeft = 3;
+                timerEl.textContent = timeLeft + 's';
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    timerEl.textContent = timeLeft + 's';
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        nextQuestion();
+                    }
+                }, 1000);
+            }
+            
+            // Update progress bar
+            function updateProgressBar() {
+                const progress = ((currentQuestion + 1) / questions.length) * 100;
+                progressBar.style.width = progress + '%';
+            }
+            
+            // End the quiz and show results
+            function endQuiz() {
+                clearInterval(timer);
+                
+                const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+                
+                quizContainer.style.display = 'none';
+                scoreCard.style.display = 'block';
+                
+                scoreEl.textContent = score;
+                correctAnswersEl.textContent = score;
+                incorrectAnswersEl.textContent = questions.length - score;
+                percentageEl.textContent = Math.round((score / questions.length) * 100) + '%';
+                timeTakenEl.textContent = timeTaken + 's';
+                
+                // Generate review
+                reviewContainer.innerHTML = '';
+                results.forEach((result, index) => {
+                    const reviewItem = document.createElement('div');
+                    reviewItem.classList.add('review-item');
+                    
+                    reviewItem.innerHTML = `
+                        <p><strong>Q${index + 1}:</strong> ${result.question}</p>
+                        <p class="${result.isCorrect ? 'correct' : 'incorrect'}">
+                            <strong>Your answer:</strong> ${result.userAnswer} 
+                            ${result.isCorrect ? '✓' : '✗'}
+                        </p>
+                        ${!result.isCorrect ? `<p><strong>Correct answer:</strong> ${result.correctAnswer}</p>` : ''}
+                    `;
+                    
+                    reviewContainer.appendChild(reviewItem);
+                });
+            }
+            
+            // Event listeners
+            startBtn.addEventListener('click', startQuiz);
+            restartBtn.addEventListener('click', startQuiz);
+        });
+    </script>
+</body>
+</html>
