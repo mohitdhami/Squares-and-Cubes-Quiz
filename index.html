@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squares & Cubes Quiz</title>
+    <title>Squares, Cubes & Powers of 2 Quiz</title>
     <style>
         * {
             box-sizing: border-box;
@@ -205,16 +205,16 @@
 <body>
     <div class="container">
         <div id="intro">
-            <h1>Squares & Cubes Quiz</h1>
+            <h1>Squares, Cubes & Powers of 2 Quiz</h1>
             <div class="instructions">
-                <p>Test your knowledge of squares (2-50) and cubes (2-30) with this timed quiz!</p>
+                <p>Test your knowledge of squares (2-50), cubes (2-30), and powers of 2 (2^4 to 2^16) with this timed quiz!</p>
                 <ul>
                     <li>50 multiple-choice questions</li>
                     <li>3 seconds per question (total 2 minutes 30 seconds)</li>
-                    <li>Two types of questions: 
+                    <li>Three types of questions: 
                         <ul>
-                            <li>What is the square/cube of a number?</li>
-                            <li>Which number does this square/cube belong to?</li>
+                            <li>What is the square/cube/power of a number?</li>
+                            <li>Which number does this square/cube/power belong to?</li>
                         </ul>
                     </li>
                     <li>Select an answer before time runs out!</li>
@@ -285,14 +285,13 @@
             let selectedOptions = [];
             let results = [];
             
-            // Generate questions for the quiz
+            // Generate questions for the quiz - merged squares, cubes, and powers of 2
             function generateQuestions() {
-                const sqQuestions = [];
-                const cbQuestions = [];
+                const allQuestions = [];
                 
                 // Generate square questions (what is square of x?)
                 for (let i = 2; i <= 50; i++) {
-                    sqQuestions.push({
+                    allQuestions.push({
                         type: 'square_direct',
                         question: `What is the square of ${i}?`,
                         answer: i * i,
@@ -302,7 +301,7 @@
                 
                 // Generate cube questions (what is cube of x?)
                 for (let i = 2; i <= 30; i++) {
-                    cbQuestions.push({
+                    allQuestions.push({
                         type: 'cube_direct',
                         question: `What is the cube of ${i}?`,
                         answer: i * i * i,
@@ -310,10 +309,20 @@
                     });
                 }
                 
+                // Generate power of 2 questions (what is 2^x?)
+                for (let exponent = 4; exponent <= 16; exponent++) {
+                    allQuestions.push({
+                        type: 'power_direct',
+                        question: `What is 2^${exponent}?`,
+                        answer: Math.pow(2, exponent),
+                        options: generateOptions(Math.pow(2, exponent), 'power')
+                    });
+                }
+                
                 // Generate square root questions (which number's square is x?)
                 for (let i = 2; i <= 50; i++) {
                     const square = i * i;
-                    sqQuestions.push({
+                    allQuestions.push({
                         type: 'square_root',
                         question: `Which number's square is ${square}?`,
                         answer: i,
@@ -324,7 +333,7 @@
                 // Generate cube root questions (which number's cube is x?)
                 for (let i = 2; i <= 30; i++) {
                     const cube = i * i * i;
-                    cbQuestions.push({
+                    allQuestions.push({
                         type: 'cube_root',
                         question: `Which number's cube is ${cube}?`,
                         answer: i,
@@ -332,8 +341,18 @@
                     });
                 }
                 
-                // Combine and shuffle questions
-                const allQuestions = [...sqQuestions, ...cbQuestions];
+                // Generate reverse power questions (which exponent gives this value?)
+                for (let exponent = 4; exponent <= 16; exponent++) {
+                    const powerValue = Math.pow(2, exponent);
+                    allQuestions.push({
+                        type: 'power_reverse',
+                        question: `2 raised to which power equals ${powerValue}?`,
+                        answer: exponent,
+                        options: generateOptions(exponent, 'exponent')
+                    });
+                }
+                
+                // Combine and shuffle questions, then select 50
                 return allQuestions.sort(() => Math.random() - 0.5).slice(0, 50);
             }
             
@@ -353,8 +372,12 @@
                         // For cube questions, generate options with more variance
                         const variance = Math.floor(Math.random() * 101) - 50; // -50 to +50
                         wrongOption = correct + variance;
+                    } else if (type === 'power') {
+                        // For power questions, generate options with some variance
+                        const variance = Math.floor(Math.random() * 41) - 20; // -20 to +20
+                        wrongOption = correct + variance;
                     } else {
-                        // For number questions, generate numbers close to the correct number
+                        // For number/exponent questions, generate numbers close to the correct one
                         const variance = Math.floor(Math.random() * 5) + 1; // 1 to 5
                         wrongOption = correct + (Math.random() > 0.5 ? variance : -variance);
                     }
