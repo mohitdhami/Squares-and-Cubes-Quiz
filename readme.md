@@ -17,12 +17,10 @@
 
 * Automatic progression to the next question after selection or time expiration
 
-### Two types of questions:
+### Three types of questions:
 
-* "What is the square/cube of X?"
-
-* "Which number's square/cube is Y?"
-
+* "What is the square/cube of X?/power of a number (2)?"
+* "Which number's square/cube is Y?/power of a number (2)?"
 
 ## Scoring & Review:
 
